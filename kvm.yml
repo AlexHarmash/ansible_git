@@ -1,0 +1,24 @@
+- name: Configurate kvm installing
+  hosts: kvm_servers
+  become: true
+
+  tasks:
+    
+    - name: to folder
+      shell: cd /home/servuser2/kvm/vm2/
+
+    - name: qemu-img
+      shell: qemu-img create -F qcow2 -b /home/servuser2/kvm/base/focal-server-cloudimg-amd64.img \
+             -f qcow2 /home/servuser2/kvm/vm2/vm2.qcow2 10G
+
+    - name: cloud-localds
+      shell: cloud-localds -v --network-config=/home/servuser2/kvm/vm2/network-config \
+             /home/servuser2/kvm/vm2/vm2-seed.qcow2 /home/servuser2/kvm/vm2/user-data /home/servuser2/kvm/vm2/meta-data
+
+    - name: virt install
+      shell: virt-install --connect qemu:///system --virt-type kvm --name vm2 --ram \
+             2048 --vcpus=2 --os-type linux --os-variant ubuntu18.04 --disk \
+             path=/home/servuser2/kvm/vm2/vm2.qcow2,device=disk \
+             --disk path=/home/servuser2/kvm/vm2/vm2-seed.qcow2,device=disk \
+             --import --network network=default,model=virtio,mac=52:54:00:95:36:86 --noautoconsole
+      

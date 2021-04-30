@@ -1,0 +1,39 @@
+- name: Configurate kvm installing
+  hosts: kvm_servers
+  become: true
+    
+
+  tasks:
+    - name: load kvm packeged  
+      apt: name={{item}} update_cache=yes
+      with_items:
+       - qemu-kvm
+       - libvirt-daemon-system
+       - bridge-utils
+       - virtinst
+       - cloud-image-utils
+
+    - name: mkdir kvm/vm2 folder
+      shell: mkdir -p $HOME/kvm/vm2
+
+    - name: copy cloud server image 
+      copy: >
+            src=/home/pc-2/ansible_kvm/playbooks/base/focal-server-cloudimg-amd64.img 
+            dest=/home/servuser2/kvm/base/
+
+    - name: copy data
+      copy: >
+            src=/home/pc-2/ansible_kvm/playbooks/data/user-data 
+            dest=/home/servuser2/kvm/vm2/
+        
+    - name: copy meta
+      copy: >
+            src=/home/pc-2/ansible_kvm/playbooks/data/meta-data
+            dest=/home/servuser2/kvm/vm2/
+
+    - name: copy netplan
+      copy: >
+            src=/home/pc-2/ansible_kvm/playbooks/data/network-config
+            dest=/home/servuser2/kvm/vm2/
+        
+  
